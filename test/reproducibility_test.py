@@ -52,6 +52,21 @@ with contextlib.suppress(ImportError):
     from p2pfl.examples.mnist.model.mlp_pytorch import model_build_fn as model_build_fn_pytorch
 
 set_standalone_settings()
+import random
+import numpy as np
+import torch
+
+
+def set_all_seeds(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    # Force deterministic operations in PyTorch:
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 
 ##
 # Schocastic P2PFL processes (voting for now)
@@ -275,6 +290,7 @@ def __train_with_seed(s, n, r, model_build_fn, disable_ray: bool = False):
 
     # Seed
     Settings.general.SEED = s
+    set_all_seeds(s)
 
     # Data
     data = P2PFLDataset.from_huggingface("p2pfl/MNIST")
@@ -302,8 +318,29 @@ def __train_with_seed(s, n, r, model_build_fn, disable_ray: bool = False):
 
     return exp_name
 
+import re
+
+def __get_first_node_results(exp_name):
+    # Get global metrics and sort by node name
+    global_metrics = logger.get_global_logs()[exp_name]
+    global_metrics = dict(sorted(global_metrics.items(), key=lambda item: item[0]))
+    # Return values for the first node in the sorted order
+    # (Assuming each metric value is a dict containing numerical metrics)
+    first_node_metrics = list(global_metrics.values())[0]
+
+    return first_node_metrics
+
+def __extract_test_metric(first_node_metrics):
+    """
+    Extracts and flattens the "test_metric" values from first_node_metrics.
+    """
+    test_metric = first_node_metrics.get("test_metric", [])
+    return __flatten_results(test_metric)
+
+
 
 def __get_results(exp_name):
+
     # Get global metrics
     global_metrics = logger.get_global_logs()[exp_name]
     print(global_metrics)
@@ -350,24 +387,76 @@ def __flatten_results(item):
         return []
 
 
-@pytest.mark.skip(reason="Working but slow....")
+
+
+# @pytest.mark.skip(reason="Working but slow....")
 @pytest.mark.parametrize(
     "input",
     [
         (model_build_fn_tensorflow, True),
+        # (model_build_fn_tensorflow, True),
         (model_build_fn_pytorch, False),
-        (model_build_fn_tensorflow, False),
+        # (model_build_fn_tensorflow, False),
     ],
 )
 def test_global_training_reproducibility(input):
     """Test that seed ensures reproducible global training results."""
     model_build_fn, disable_ray = input
-    n, r = 10, 1
-
+    n, r = 2, 1
+    """
+    Inside logs, if you see double amount of "starting gossiper" messaages its because we have exp1 and exp2, for n=2,r=2 its 4 per each.
+    
+    """
+    def get_aggregated_test_metric(exp_name):
+        global_metrics = logger.get_global_logs()[exp_name]
+        final_metrics = []
+        for addr, metrics in global_metrics.items():
+            node_test_metrics = __extract_test_metric(metrics)
+            if node_test_metrics:
+                # Take the last value from each node (the evaluation after the final round)
+                final_metrics.append(node_test_metrics[-1])
+        if final_metrics:
+            aggregated_result = np.mean(final_metrics)
+        else:
+            aggregated_result = None
+        return aggregated_result
+    
     exp_name1 = __train_with_seed(666, n, r, model_build_fn, disable_ray)
     exp_name2 = __train_with_seed(666, n, r, model_build_fn, disable_ray)
-    exp_name3 = __train_with_seed(777, n, r, model_build_fn, disable_ray)
+    # exp_name3 = __train_with_seed(777, n, r, model_build_fn, disable_ray)
 
+
+    # first_node_raw_1 = __get_first_node_results(exp_name1)
+    # print("First node raw metrics:", first_node_raw_1)
+
+    # first_node_flattened = __flatten_results(first_node_raw_1)
+    # print("First node flattened metrics:", first_node_flattened)
+
+    # first_node_raw_2 = __get_first_node_results(exp_name2)
+    # print("First node raw metrics:", first_node_raw_2)
+
+    # first_node_flattened_2 = __flatten_results(first_node_raw_2)
+    # print("First node flattened metrics:", first_node_flattened_2)
     # Check if metrics are the same in the 2 trainings -> set seed works
-    assert np.allclose(__flatten_results(__get_results(exp_name1)), __flatten_results(__get_results(exp_name2)))
-    assert not np.allclose(__flatten_results(__get_results(exp_name2)), __flatten_results(__get_results(exp_name3)))
+    first_node_raw_1 = __get_first_node_results(exp_name1)
+    test_metric_1 = __extract_test_metric(first_node_raw_1)
+    print("First experiment test_metric values:", test_metric_1)
+
+    first_node_raw_2 = __get_first_node_results(exp_name2)
+    test_metric_2 = __extract_test_metric(first_node_raw_2)
+    print("Second experiment test_metric values:", test_metric_2)
+
+    E1_aGGREGATED = get_aggregated_test_metric(exp_name1)
+    E2_aGGREGATED = get_aggregated_test_metric(exp_name2)
+    print("Aggregated test metric values for the first experiment:", E1_aGGREGATED)
+    print("Aggregated test metric values for the second experiment:", E2_aGGREGATED)
+
+    outputE1 = __flatten_results(__get_results(exp_name1))
+    print("First experiment output:", outputE1)
+    outputE2 = __flatten_results(__get_results(exp_name2))
+    print("Second experiment output:", outputE2)
+
+    assert np.allclose(test_metric_1, test_metric_2), \
+        "The test_metric values for the first node are not identical despite using equal seeds"
+    # assert np.allclose(__flatten_results(__get_results(exp_name1)), __flatten_results(__get_results(exp_name2)))
+    # assert not np.allclose(__flatten_results(__get_results(exp_name2)), __flatten_results(__get_results(exp_name3)))

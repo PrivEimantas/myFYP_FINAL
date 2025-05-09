@@ -27,6 +27,13 @@ from p2pfl.learning.frameworks.tensorflow.keras_model import KerasModel
 from p2pfl.settings import Settings
 from p2pfl.utils.seed import set_seed
 
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.metrics import Precision, Recall
+from p2pfl.management.logger import logger
+import torch
 ####
 # Example MLP
 ####
@@ -47,6 +54,7 @@ class MLP(tf.keras.Model):
             kwargs: Additional arguments.
 
         """
+        # super().__init__()
         set_seed(Settings.general.SEED, "tensorflow")
         if hidden_sizes is None:
             hidden_sizes = [256, 128]
@@ -60,8 +68,14 @@ class MLP(tf.keras.Model):
         self.loss = SparseCategoricalCrossentropy(from_logits=True)
         self.optimizer = Adam(learning_rate=lr_rate)
 
+      
+
         # Force the model to be built
         self(tf.zeros((1, 28, 28, 1)))
+
+        
+
+        
 
     def call(self, inputs):
         """Forward pass of the MLP."""
@@ -70,6 +84,8 @@ class MLP(tf.keras.Model):
             x = layer(x)
         x = self.output_layer(x)
         return x
+    
+    
 
 
 # Export P2PFL model

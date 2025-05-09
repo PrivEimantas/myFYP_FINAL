@@ -26,6 +26,8 @@ import tensorflow as tf  # type: ignore
 from p2pfl.learning.frameworks import Framework
 from p2pfl.learning.frameworks.exceptions import ModelNotMatchingError
 from p2pfl.learning.frameworks.p2pfl_model import P2PFLModel
+import copy 
+
 
 #####################
 #    KerasModel     #
@@ -110,3 +112,26 @@ class KerasModel(P2PFLModel):
 
         """
         return Framework.TENSORFLOW.value
+
+
+    # def build_copy(self, **kwargs: Any) -> P2PFLModel:
+    #     # Extract required parameters from kwargs
+    #     params: list[np.ndarray] = kwargs.pop("params")
+    #     num_samples: int = kwargs.pop("num_samples")
+    #     contributors: list[str] = kwargs.pop("contributors")
+        
+    #     # Create a deep copy of the underlying Keras model.
+    #     new_model = copy.deepcopy(self.model)
+        
+    #     # Set only the network weights (not optimizer state) with the aggregated parameters.
+    #     new_model.set_weights(params)
+        
+    #     # Recompile the new_model to reinitialize the optimizer state.
+    #     new_model.compile(
+    #         optimizer=self.model.optimizer,
+    #         loss=self.model.loss,
+    #         metrics=self.model.metrics,
+    #     )
+        
+    #     # Return a new KerasModel instance wrapping new_model.
+    #     return KerasModel(new_model, params=params, num_samples=num_samples, contributors=contributors, **kwargs)

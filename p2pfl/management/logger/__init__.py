@@ -38,5 +38,8 @@ if ray_installed():
         logger = RayP2PFLogger(lambda: WebP2PFLogger(FileLogger(P2PFLogger(disable_locks=True))))
 
 else:
+
+
+
     # This is only executed once, when the module is first imported
     logger = SingletonLogger(WebP2PFLogger(FileLogger(AsyncLogger(P2PFLogger(disable_locks=False)))))

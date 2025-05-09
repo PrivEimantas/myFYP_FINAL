@@ -100,7 +100,10 @@ class Node:
         """Initialize a node."""
         # Communication protol (and get addr)
         self._communication_protocol = GrpcCommunicationProtocol() if protocol is None else protocol
-        self.addr = self._communication_protocol.set_addr(addr)
+        self.addr = self._communication_protocol.set_addr(addr) 
+        
+
+        
 
         # Aggregator
         self.aggregator = FedAvg() if aggregator is None else aggregator
@@ -365,6 +368,8 @@ class Node:
         if self.state.round is None:
             # Broadcast start Learning
             logger.info(self.addr, "🚀 Broadcasting start learning...")
+            
+
             experiment_name = f"{experiment_name}-{time.time()}"
             self._communication_protocol.broadcast(
                 self._communication_protocol.build_msg(

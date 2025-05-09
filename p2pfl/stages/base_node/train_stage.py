@@ -31,6 +31,12 @@ from p2pfl.node_state import NodeState
 from p2pfl.stages.stage import EarlyStopException, Stage, check_early_stop
 from p2pfl.stages.stage_factory import StageFactory
 
+from test.Experiments.Attacks.sign_flip_train_stage import apply_sign_flip_to_trainset
+from test.Experiments.node_registry import get_flag,set_flag_true,release_flag,get_nodeMap
+from test.Experiments.Attacks.additive_noise import apply_additive_additive_noise
+
+import copy
+
 
 class TrainStage(Stage):
     """Train stage."""
@@ -55,6 +61,12 @@ class TrainStage(Stage):
         try:
             check_early_stop(state)
 
+            # print("Applying sign flip attack to trainset")
+            
+            apply_sign_flip_to_trainset(state, fraction=0.3)
+            # apply_additive_additive_noise(state,fraction=0.3)
+                
+
             # Set Models To Aggregate
             aggregator.set_nodes_to_aggregate(state.train_set)
 
@@ -65,10 +77,31 @@ class TrainStage(Stage):
 
             check_early_stop(state)
 
+            #apply adversary attack here
+            
+            shared_weights = copy.deepcopy(learner.get_model().model.get_weights())
+
             # Train
             logger.info(state.addr, "🏋️‍♀️ Training...")
             learner.fit()
             logger.info(state.addr, "🎓 Training done.")
+
+            #Adverary node
+            # if hasattr(state, "node_index") and state.node_index < 6:
+            #     print("Applying attack, address is, ", state.node_index)
+            #     trained_weights = copy.deepcopy(learner.get_model().model.get_weights())
+            #     scale_up = 5
+            #     attack_weights = copy.deepcopy(shared_weights)
+                
+            #     for i in range(len(shared_weights)):
+            #         difference = trained_weights[i] - shared_weights[i]
+            #         attack_weights[i] += scale_up * difference
+
+            #     learner.get_model().model.set_weights(attack_weights)
+            #     print("Attack weights set")
+                
+
+            
 
             check_early_stop(state)
 

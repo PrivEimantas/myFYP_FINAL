@@ -78,7 +78,7 @@ def mnist(
     protocol: str = "grpc",
     framework: str = "pytorch",
     aggregator: str = "fedavg",
-    reduced_dataset: bool = False,
+    reduced_dataset: bool = True,
     topology: TopologyType = TopologyType.LINE,
     batch_size: int = 128,
 ) -> None:
@@ -162,8 +162,10 @@ def mnist(
         # Local Logs
         if show_metrics:
             local_logs = logger.get_local_logs()
+            print("Local logs:", local_logs)
             if local_logs != {}:
                 logs_l = list(local_logs.items())[0][1]
+                print("Logs l:", logs_l)
                 #  Plot experiment metrics
                 for round_num, round_metrics in logs_l.items():
                     for node_name, node_metrics in round_metrics.items():

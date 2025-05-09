@@ -55,9 +55,9 @@ class FedAvg(Aggregator):
 
         # Total Samples
         total_samples = sum([m.get_num_samples() for m in models])
-
+        
         # Create a Zero Model using numpy
-        first_model_weights = models[0].get_parameters()
+        first_model_weights = models[0].get_parameters() 
         accum = [np.zeros_like(layer) for layer in first_model_weights]
 
         # Add weighted models

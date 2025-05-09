@@ -114,6 +114,40 @@ class KerasLearner(Learner):
         # Need to implement a custom callback or use a flag to stop training.
         logger.error(self.addr, "Interrupting training (not fully implemented for Keras).")
 
+    # def test_step(self, data):
+    #     """
+    #     Custom test step to update precision, recall and compute F1 score.
+    #     This method is invoked automatically during model.evaluate().
+    #     """
+    #     x, y = data
+    #     y_pred = self(x, training=False)
+    #     # Compute loss.
+    #     loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
+        
+    #     # Update default compiled metrics.
+    #     self.compiled_metrics.update_state(y, y_pred)
+        
+    #     # Update custom metrics: compute predictions from logits.
+    #     preds = tf.argmax(y_pred, axis=-1)
+    #     self.precision.update_state(y, preds)
+    #     self.recall.update_state(y, preds)
+    #     prec = self.precision.result()
+    #     rec = self.recall.result()
+    #     # Compute F1 from precision and recall.
+    #     f1 = 2 * (prec * rec) / (prec + rec + 1e-6)
+    #     self.f1score.update_state(f1)
+        
+    #     # Collect results.
+    #     results = {m.name: m.result() for m in self.metrics}
+    #     results.update({
+    #         "loss": loss,
+    #         "precision": prec,
+    #         "recall": rec,
+    #         "f1": f1
+    #     })
+    #     return results
+    
+
     def evaluate(self) -> Dict[str, float]:
         """Evaluate the Keras model."""
         try:

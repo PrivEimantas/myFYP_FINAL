@@ -100,10 +100,11 @@ class Heartbeater(threading.Thread, NodeComponent):
                 neis = self.__neighbors.get_all()
                 for nei in neis:
                     if t - neis[nei][1] > timeout:
-                        logger.info(
-                            self.addr,
-                            f"Heartbeat timeout for {nei} ({t - neis[nei][1]}). Removing...",
-                        )
+                        
+                        # logger.info(
+                        #     self.addr,
+                        #     f"Heartbeat timeout for {nei} ({t - neis[nei][1]}). Removing...",
+                        # )
                         self.__neighbors.remove(nei)
             else:
                 toggle = True

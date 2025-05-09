@@ -46,20 +46,23 @@ def set_standalone_settings() -> None:
         - TTL: Low TTLs can cause that some messages are not delivered.
 
     """
+    """
+    NOTE: Messing around with grpc_timeout causes the nodes to not have test metrics and just breaks everything
+    """
     Settings.general.GRPC_TIMEOUT = 10
-    Settings.heartbeat.PERIOD = 1
-    Settings.heartbeat.TIMEOUT = 10
-    Settings.heartbeat.WAIT_CONVERGENCE = 2
+    Settings.heartbeat.PERIOD = 10 #1
+    Settings.heartbeat.TIMEOUT = 100
+    Settings.heartbeat.WAIT_CONVERGENCE = 5
     Settings.heartbeat.EXCLUDE_BEAT_LOGS = True
-    Settings.gossip.PERIOD = 0
-    Settings.gossip.TTL = 10
+    Settings.gossip.PERIOD = 2 #0
+    Settings.gossip.TTL = 21 #10
     Settings.gossip.MESSAGES_PER_PERIOD = 9999999999
     Settings.gossip.AMOUNT_LAST_MESSAGES_SAVED = 10000
     Settings.gossip.MODELS_PERIOD = 2
     Settings.gossip.MODELS_PER_ROUND = 4
     Settings.gossip.EXIT_ON_X_EQUAL_ROUNDS = 10
     Settings.training.VOTE_TIMEOUT = 60
-    Settings.training.AGGREGATION_TIMEOUT = 60
+    Settings.training.AGGREGATION_TIMEOUT = 999 #60
     Settings.general.LOG_LEVEL = "INFO"
     logger.set_level(Settings.general.LOG_LEVEL)  # Refresh (maybe already initialized)
 
@@ -130,10 +133,12 @@ def wait_to_finish(nodes: List[Node], timeout=3600):
     start = time.time()
     while True:
         if all(n.learning_workflow.finished for n in nodes):
+            print
             break
         time.sleep(1)
         elapsed = time.time() - start
         if elapsed > timeout:
+            break
             raise TimeoutError(f"Timeout waiting for nodes to finish (elapsed: {int(elapsed//60)} minutes {int(elapsed%60)} seconds)")
 
 

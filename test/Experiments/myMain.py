@@ -167,11 +167,13 @@ def __train_with_additive_noise(s, n, r, model_build_fn, disable_ray: bool = Fal
     from test.Experiments.Aggregators.BRA.bra import BayesianRobustAggregation
     from test.Experiments.Aggregators.FoolsGold.foolsgold import FoolsGold
 
+    from test.Experiments.Aggregators.RFA.rfa import RFA
+
     nodes = []
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
         # fixed_addr = f"127.0.0.1:{6000 + i}"
-        node = Node(model_build_fn(), partitions[i], protocol=mem_protocl,aggregator=FoolsGold())
+        node = Node(model_build_fn(), partitions[i], protocol=mem_protocl,aggregator=RFA())
         register_node(node)
         node.start()
         nodes.append(node)
@@ -244,15 +246,16 @@ def __train_with_adversary(s, n, r, model_build_fn, disable_ray: bool = False, f
     from test.Experiments.Aggregators.Krum.krum import KrumAggregator
     from test.Experiments.Aggregators.BRA.bra import BayesianRobustAggregation
     from test.Experiments.Aggregators.FoolsGold.foolsgold import FoolsGold
+    from test.Experiments.Aggregators.RFA.rfa import RFA
 
     nodes = []
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
 
         if i < numAttackNodes:
-            node = Node(model_build_fn(), poisonedPartitions[i], protocol=mem_protocl,aggregator=FoolsGold())
+            node = Node(model_build_fn(), poisonedPartitions[i], protocol=mem_protocl,aggregator=RFA())
         else:
-            node = Node(model_build_fn(), partitions[i],protocol=mem_protocl,aggregator=FoolsGold())
+            node = Node(model_build_fn(), partitions[i],protocol=mem_protocl,aggregator=RFA())
         node.state.node_index=i
         node.start()
 
@@ -494,9 +497,9 @@ def NoAttack():
     #train_stage has been modified
     
     # exp_name1 = __train_with_seed(666, n, r, model_build_fn, True) #default
-    exp_name1 = __train_with_sign_flip(666, n, r, model_build_fn, True,fraction=0.3) #default
+    # exp_name1 = __train_with_sign_flip(666, n, r, model_build_fn, True,fraction=0.3) #default
     # exp_name1 = __train_with_additive_noise(666, n, r, model_build_fn, True, attack_node_idx=0, noise_std=0.1) #default
-    # exp_name1 = __train_with_adversary(666, n, r, model_build_fn, True,fraction=0.3) 
+    exp_name1 = __train_with_adversary(666, n, r, model_build_fn, True,fraction=0.3) 
 
 
 

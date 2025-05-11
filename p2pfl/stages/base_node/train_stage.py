@@ -63,7 +63,7 @@ class TrainStage(Stage):
 
             # print("Applying sign flip attack to trainset")
             
-            apply_sign_flip_to_trainset(state, fraction=0.3)
+            # apply_sign_flip_to_trainset(state, fraction=0.3)
             # apply_additive_additive_noise(state,fraction=0.3)
                 
 
@@ -87,18 +87,18 @@ class TrainStage(Stage):
             logger.info(state.addr, "🎓 Training done.")
 
             #Adverary node
-            # if hasattr(state, "node_index") and state.node_index < 6:
-            #     print("Applying attack, address is, ", state.node_index)
-            #     trained_weights = copy.deepcopy(learner.get_model().model.get_weights())
-            #     scale_up = 5
-            #     attack_weights = copy.deepcopy(shared_weights)
+            if hasattr(state, "node_index") and state.node_index < 6:
+                print("Applying attack, address is, ", state.node_index)
+                trained_weights = copy.deepcopy(learner.get_model().model.get_weights())
+                scale_up = 5
+                attack_weights = copy.deepcopy(shared_weights)
                 
-            #     for i in range(len(shared_weights)):
-            #         difference = trained_weights[i] - shared_weights[i]
-            #         attack_weights[i] += scale_up * difference
+                for i in range(len(shared_weights)):
+                    difference = trained_weights[i] - shared_weights[i]
+                    attack_weights[i] += scale_up * difference
 
-            #     learner.get_model().model.set_weights(attack_weights)
-            #     print("Attack weights set")
+                learner.get_model().model.set_weights(attack_weights)
+                print("Attack weights set")
                 
 
             

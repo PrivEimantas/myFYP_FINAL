@@ -5,7 +5,7 @@ import numpy as np
 def apply_additive_additive_noise(state, fraction=0.3) -> None:
     if state.train_set and state.addr == state.train_set[0]:
         nodes_map = get_nodeMap()
-        noise_std = 0.5  # Standard deviation of the noise
+        noise_std = 0.5  
         num_attack_nodes = int(len(nodes_map) * fraction)
         
         for i in range(num_attack_nodes):

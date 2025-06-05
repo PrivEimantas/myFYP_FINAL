@@ -17,10 +17,10 @@ def apply_additive_additive_noise(state, fraction=0.3) -> None:
                 weights = underlying_model.get_weights()
                 noised_weights = []
                 for weight in weights:
-                    # Convert weight to a torch tensor to generate noise
+                  
                     weight_tensor = torch.tensor(weight)
                     noise = torch.randn_like(weight_tensor) * noise_std
-                    # Add noise and convert back to numpy array
+                 
                     noised_weights.append((weight_tensor + noise).numpy())
                 underlying_model.set_weights(noised_weights)
             

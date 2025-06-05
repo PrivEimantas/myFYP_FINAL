@@ -104,7 +104,7 @@ def __train_with_sign_flip(s, n, r, model_build_fn, disable_ray: bool = False, f
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
         # fixed_addr = f"127.0.0.1:{6000 + i}"
-        node = Node(model_build_fn(), partitions[i],protocol=mem_protocl,aggregator=RFA())
+        node = Node(model_build_fn(), partitions[i],protocol=mem_protocl)
         register_node(node)
         node.start()
         nodes.append(node)
@@ -160,7 +160,7 @@ def __train_with_additive_noise(s, n, r, model_build_fn, disable_ray: bool = Fal
     Settings.general.SEED = s
     # set_all_seeds(s)
     data = P2PFLDataset.from_huggingface("p2pfl/MNIST")
-    partitions = data.generate_partitions(n * 40, RandomIIDPartitionStrategy)
+    partitions = data.generate_partitions(n * 50, RandomIIDPartitionStrategy)
 
     # Create and start nodes
     from test.Experiments.Aggregators.Krum.krum import KrumAggregator
@@ -173,7 +173,7 @@ def __train_with_additive_noise(s, n, r, model_build_fn, disable_ray: bool = Fal
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
         # fixed_addr = f"127.0.0.1:{6000 + i}"
-        node = Node(model_build_fn(), partitions[i], protocol=mem_protocl,aggregator=RFA())
+        node = Node(model_build_fn(), partitions[i], protocol=mem_protocl)
         register_node(node)
         node.start()
         nodes.append(node)
@@ -253,9 +253,9 @@ def __train_with_adversary(s, n, r, model_build_fn, disable_ray: bool = False, f
         mem_protocl = MemoryCommunicationProtocol()
 
         if i < numAttackNodes:
-            node = Node(model_build_fn(), poisonedPartitions[i], protocol=mem_protocl,aggregator=RFA())
+            node = Node(model_build_fn(), poisonedPartitions[i], protocol=mem_protocl,aggregator=KrumAggregator())
         else:
-            node = Node(model_build_fn(), partitions[i],protocol=mem_protocl,aggregator=RFA())
+            node = Node(model_build_fn(), partitions[i],protocol=mem_protocl,aggregator=KrumAggregator())
         node.state.node_index=i
         node.start()
 
@@ -323,7 +323,7 @@ def __train_with_seed(s, n, r, model_build_fn, disable_ray: bool = False):
     exp_name = nodes[0].set_start_learning(rounds=r, epochs=1)
 
     # Wait
-    wait_to_finish(nodes, timeout=1000)
+    wait_to_finish(nodes, timeout=2000)
 
     # Stop Nodes
     [n.stop() for n in nodes]
@@ -498,8 +498,8 @@ def NoAttack():
     
     # exp_name1 = __train_with_seed(666, n, r, model_build_fn, True) #default
     # exp_name1 = __train_with_sign_flip(666, n, r, model_build_fn, True,fraction=0.3) #default
-    # exp_name1 = __train_with_additive_noise(666, n, r, model_build_fn, True, attack_node_idx=0, noise_std=0.1) #default
-    exp_name1 = __train_with_adversary(666, n, r, model_build_fn, True,fraction=0.3) 
+    exp_name1 = __train_with_additive_noise(666, n, r, model_build_fn, True, attack_node_idx=0, noise_std=0.5) #default
+    # exp_name1 = __train_with_adversary(666, n, r, model_build_fn, True,fraction=0.4) 
 
 
 

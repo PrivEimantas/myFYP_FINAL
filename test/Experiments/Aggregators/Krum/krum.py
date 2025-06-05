@@ -57,7 +57,7 @@ class KrumAggregator(Aggregator):
     Returns:
         The aggregated model corresponds to the selected update converted back to the model's structure.
     """
-    def __init__(self, f: int = 1) -> None:
+    def __init__(self, f: int = 8) -> None:
         super().__init__()
         self.f = f  # number of Byzantine nodes assumed
         self.partial_aggregation = True

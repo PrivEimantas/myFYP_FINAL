@@ -65,14 +65,15 @@ class BayesianRobustAggregation(Aggregator):
 
         # Compute a score for each update using the provided VAE, or a fallback error metric
         if self.vae is not None:
-            with torch.no_grad():
-                tensor_X = torch.tensor(flat_models_arr, dtype=torch.float32, device=self.device)
-                # Assume the VAE's forward returns: (x_hat, z_mu, z_logvar)
-                x_hat, z_mu, z_logvar = self.vae(tensor_X)
-                mse = torch.nn.functional.mse_loss(x_hat, tensor_X, reduction="none") \
-                        .view(tensor_X.size(0), -1).sum(dim=1)
-                kld = -0.5 * torch.sum(1 + z_logvar - z_mu.pow(2) - torch.exp(z_logvar), dim=1)
-                scores = (mse + kld).cpu().numpy()
+            pass #not needed
+            # with torch.no_grad():
+            #     tensor_X = torch.tensor(flat_models_arr, dtype=torch.float32, device=self.device)
+            #     # Assume the VAE's forward returns: (x_hat, z_mu, z_logvar)
+            #     x_hat, z_mu, z_logvar = self.vae(tensor_X)
+            #     mse = torch.nn.functional.mse_loss(x_hat, tensor_X, reduction="none") \
+            #             .view(tensor_X.size(0), -1).sum(dim=1)
+            #     kld = -0.5 * torch.sum(1 + z_logvar - z_mu.pow(2) - torch.exp(z_logvar), dim=1)
+            #     scores = (mse + kld).cpu().numpy()
         else:
             # Fallback: measure squared deviation from the mean update
             mean_update = np.mean(flat_models_arr, axis=0)

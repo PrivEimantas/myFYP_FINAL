@@ -48,7 +48,7 @@ def set_all_seeds(seed):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-    # Force deterministic operations in PyTorch:
+   
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
@@ -88,7 +88,7 @@ def __train_with_sign_flip(s, n, r, model_build_fn, disable_ray: bool = False, f
 
     numAttackingNodes = int(n * fraction)
 
-    # bra = BayesianRobustAggregation(max_em_steps=3, tol=1e-4)
+   
 
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
@@ -109,7 +109,7 @@ def __train_with_sign_flip(s, n, r, model_build_fn, disable_ray: bool = False, f
         underlying_model = adversary.get_model().model  
         if hasattr(underlying_model, "get_weights"):
             weights = underlying_model.get_weights()
-            # Flip the signs of the weights:
+          
             flipped_weights = [-w for w in weights]
             underlying_model.set_weights(flipped_weights)
         else:
@@ -157,7 +157,7 @@ def __train_with_additive_noise(s, n, r, model_build_fn, disable_ray: bool = Fal
     nodes = []
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
-        # fixed_addr = f"127.0.0.1:{6000 + i}"
+       
         node = Node(model_build_fn(), partitions[i], protocol=mem_protocl)
         register_node(node)
         node.start()
@@ -268,9 +268,9 @@ def __train_with_seed(s, n, r, model_build_fn, disable_ray: bool = False):
     nodes = []
     for i in range(n):
         mem_protocl = MemoryCommunicationProtocol()
-        # fixed_addr = f"127.0.0.1:{6000 + i}"
+       
         node = Node(model_build_fn(), partitions[i], protocol=mem_protocl)
-        # node.name = f"node_{i}"
+        
         register_node(node)
         node.start()
         nodes.append(node)
@@ -349,14 +349,14 @@ def __get_first_node_results(exp_name):
 def __get_node_results(exp_name, node_name="node_0"):
    
     global_metrics = logger.get_global_logs()[exp_name]
-    # Assumes the keys are the fixed node names
+  
     if node_name not in global_metrics:
         raise ValueError(f"No metrics found for node {node_name}")
     return global_metrics[node_name]
 
 def __extract_test_metric(first_node_metrics):
    
-    # test_metric = first_node_metrics.get("test_metric", [])
+  
     test_metric = first_node_metrics.get("compile_metrics", [])
     return __flatten_results(test_metric)
 

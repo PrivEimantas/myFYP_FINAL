@@ -1,14 +1,7 @@
 from test.Experiments.node_registry import get_nodeMap
 
 def apply_sign_flip_to_trainset(state, fraction=0.3) -> None:
-    """
-    Apply a sign-flip attack on a fraction of nodes in the training set.
-    Since state.train_set is a list of node addresses, we use a global registry to look up each node.
-    
-    Args:
-        state: The NodeState.
-        fraction: Fraction of nodes to attack.
-    """
+
     
     if state.train_set and state.addr == state.train_set[0]:
         nodes_map = get_nodeMap()
